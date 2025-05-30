@@ -1,0 +1,4 @@
+llama-index==0.10.30
+openai
+pandas
+python-dotenv
