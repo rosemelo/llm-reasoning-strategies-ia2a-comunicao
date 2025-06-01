@@ -1,68 +1,35 @@
-import os
-import zipfile
-import pandas as pd
-from llama_index.query_engine import PandasQueryEngine
+import streamlit as st
+from utils.verifica_zip import check_and_unzip, load_data, create_query_engine
+from llama_index.core import Settings
 
-# Configurações
-DATA_DIR = "data"
-ZIP_FILE = "202401_NFs.zip"
-CABECALHO_FILE = "202401_NFs_Cabecalho.csv"
-ITENS_FILE = "202401_NFs_Itens.csv"
+# *** Adicione estas linhas no início do seu app.py ***
+Settings.llm = None
+Settings.embed_model = None # Opcional: desabilita o modelo de embedding também
 
-def unzip_files(zip_path, extract_to):
-    if not os.path.exists(extract_to):
-        os.makedirs(extract_to)
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall(extract_to)
-    print("✅ Arquivos descompactados.")
+st.set_page_config(page_title="Consulta de Notas Fiscais", layout="wide")
 
-def check_and_unzip():
-    cabecalho_path = os.path.join(DATA_DIR, CABECALHO_FILE)
-    itens_path = os.path.join(DATA_DIR, ITENS_FILE)
-    if os.path.exists(cabecalho_path) and os.path.exists(itens_path):
-        print("✔️ Arquivos CSV já estão presentes. Pulando descompactação.")
-    else:
-        print("📦 Arquivos CSV não encontrados. Descompactando...")
-        unzip_files(os.path.join(DATA_DIR, ZIP_FILE), DATA_DIR)
+st.title("🔍 Consulta de Notas Fiscais - Janeiro 2024")
 
-def load_data():
-    cabecalho = pd.read_csv(os.path.join(DATA_DIR, CABECALHO_FILE))
-    itens = pd.read_csv(os.path.join(DATA_DIR, ITENS_FILE))
-    print(f"🗂️ Dados carregados: Cabeçalho({cabecalho.shape[0]} linhas), Itens({itens.shape[0]} linhas)")
-    return cabecalho, itens
+st.sidebar.header("⚙️ Configurações")
+pergunta = st.text_input("Digite sua pergunta:")
 
-def create_query_engine(df, name="Tabela"):
-    # Cria o agente para consultar o dataframe
-    engine = PandasQueryEngine(df=df, verbose=True)
-    # Você pode customizar prompts se quiser (ver docs do llama_index)
-    return engine
-
-def main():
-    print("🔍 Iniciando agente de consulta de Notas Fiscais...")
+if "cabecalho_engine" not in st.session_state:
     check_and_unzip()
     cabecalho_df, itens_df = load_data()
+    st.session_state.cabecalho_engine = create_query_engine(cabecalho_df, "Notas Fiscais - Cabeçalho")
+    st.session_state.itens_engine = create_query_engine(itens_df, "Notas Fiscais - Itens")
 
-    cabecalho_engine = create_query_engine(cabecalho_df, "Notas Fiscais - Cabeçalho")
-    itens_engine = create_query_engine(itens_df, "Notas Fiscais - Itens")
-
-    while True:
-        pergunta = input("\n❓ Digite sua pergunta (ou 'sair' para encerrar):\n> ")
-        if pergunta.lower() in ["sair", "exit", "quit"]:
-            print("👋 Encerrando agente. Até mais!")
-            break
+if pergunta:
+    with st.spinner("Consultando..."):
         try:
-            print("\n📄 Resposta do Cabeçalho:")
-            resposta_cabecalho = cabecalho_engine.query(pergunta)
-            print(resposta_cabecalho.response)
-        except Exception as e:
-            print(f"⚠️ Erro ao consultar cabeçalho: {e}")
+            resposta_cab = st.session_state.cabecalho_engine.query(pergunta)
+            resposta_itens = st.session_state.itens_engine.query(pergunta)
 
-        try:
-            print("\n📦 Resposta dos Itens:")
-            resposta_itens = itens_engine.query(pergunta)
-            print(resposta_itens.response)
-        except Exception as e:
-            print(f"⚠️ Erro ao consultar itens: {e}")
+            st.subheader("📄 Resultado - Cabeçalho")
+            st.write(resposta_cab.response)
 
-if __name__ == "__main__":
-    main()
+            st.subheader("📦 Resultado - Itens")
+            st.write(resposta_itens.response)
+
+        except Exception as e:
+            st.error(f"Erro na consulta: {e}")
