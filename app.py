@@ -19,6 +19,14 @@ if "cabecalho_engine" not in st.session_state:
     st.session_state.cabecalho_engine = create_query_engine(cabecalho_df, "Notas Fiscais - Cabeçalho")
     st.session_state.itens_engine = create_query_engine(itens_df, "Notas Fiscais - Itens")
 
+def format_response(response):
+    if response and hasattr(response, 'response'):
+        return str(response.response)
+    elif response:
+        return str(response)
+    else:
+        return "Nenhuma resposta encontrada."
+
 if pergunta:
     with st.spinner("Consultando..."):
         try:
@@ -26,10 +34,10 @@ if pergunta:
             resposta_itens = st.session_state.itens_engine.query(pergunta)
 
             st.subheader("📄 Resultado - Cabeçalho")
-            st.write(resposta_cab.response)
+            st.write(format_response(resposta_cab))
 
             st.subheader("📦 Resultado - Itens")
-            st.write(resposta_itens.response)
+            st.write(format_response(resposta_itens))
 
         except Exception as e:
             st.error(f"Erro na consulta: {e}")
