@@ -56,6 +56,13 @@ def load_data():
         logging.error(f"❌ Erro ao ler os arquivos CSV: {e}")
         raise
 
+class TextOutputProcessor:
+    def parse(self, output: str):
+        return output  # Retorna a resposta textual simples
+
+    def get_format_instructions(self) -> str:
+        return "Retorne a resposta em texto simples."
+
 def create_query_engine(df, name="Tabela"):
     logging.info(f"🔎 Criando motor de consulta para: {name}")
     pandas_prompt = PromptTemplate(
@@ -69,7 +76,13 @@ Você DEVE retornar APENAS a resposta textual e nada mais.
 NÃO inclua nenhuma formatação adicional, como explicações ou código Python.
 """
     )
-    engine = PandasQueryEngine(df=df, verbose=False, llm=None, pandas_prompt=pandas_prompt)
+    engine = PandasQueryEngine(
+        df=df,
+        verbose=False,
+        llm=None,
+        pandas_prompt=pandas_prompt,
+        output_processor=TextOutputProcessor()
+    )
     return engine
 
 if __name__ == "__main__":
