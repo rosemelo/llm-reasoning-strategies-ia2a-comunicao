@@ -1,43 +1,78 @@
 import streamlit as st
-from utils.verifica_zip import check_and_unzip, load_data, create_query_engine
-from llama_index.core import Settings
+import pandas as pd
+import zipfile
+import os
 
-# *** Adicione estas linhas no início do seu app.py ***
-Settings.llm = None
-Settings.embed_model = None # Opcional: desabilita o modelo de embedding também
+DATA_DIR = "data"
+ZIP_FILENAME = "202401_NFs.zip"
+CABECALHO_CSV = "202401_NFs_Cabecalho.csv"
+ITENS_CSV = "202401_NFs_Itens.csv"
 
-st.set_page_config(page_title="Consulta de Notas Fiscais", layout="wide")
+def unzip_if_needed():
+    if not (os.path.exists(os.path.join(DATA_DIR, CABECALHO_CSV)) and os.path.exists(os.path.join(DATA_DIR, ITENS_CSV))):
+        with zipfile.ZipFile(os.path.join(DATA_DIR, ZIP_FILENAME), 'r') as zip_ref:
+            zip_ref.extractall(DATA_DIR)
 
-st.title("🔍 Consulta de Notas Fiscais - Janeiro 2024")
+def load_data():
+    cabecalho = pd.read_csv(os.path.join(DATA_DIR, CABECALHO_CSV))
+    itens = pd.read_csv(os.path.join(DATA_DIR, ITENS_CSV))
+    return cabecalho, itens
 
-st.sidebar.header("⚙️ Configurações")
-pergunta = st.text_input("Digite sua pergunta:")
-
-if "cabecalho_engine" not in st.session_state:
-    check_and_unzip()
-    cabecalho_df, itens_df = load_data()
-    st.session_state.cabecalho_engine = create_query_engine(cabecalho_df, "Notas Fiscais - Cabeçalho")
-    st.session_state.itens_engine = create_query_engine(itens_df, "Notas Fiscais - Itens")
-
-def format_response(response):
-    if response and hasattr(response, 'response'):
-        return str(response.response)
-    elif response:
-        return str(response)
+def responder_pergunta(df, pergunta):
+    pergunta = pergunta.lower()
+    
+    # Exemplos simples de perguntas suportadas
+    if "quantas notas" in pergunta or "quantos registros" in pergunta:
+        return f"O dataframe tem {len(df)} registros."
+    elif "quais fornecedores" in pergunta or "fornecedores" in pergunta:
+        fornecedores = df['Fornecedor'].unique() if 'Fornecedor' in df.columns else None
+        if fornecedores is not None:
+            return f"Fornecedores encontrados: {', '.join(map(str, fornecedores[:10]))} (mostrar até 10)."
+        else:
+            return "Coluna 'Fornecedor' não encontrada nos dados selecionados."
+    elif "valores totais" in pergunta or "valor total" in pergunta:
+        if 'ValorTotal' in df.columns:
+            total = df['ValorTotal'].sum()
+            return f"O valor total é {total:.2f}."
+        else:
+            return "Coluna 'ValorTotal' não encontrada nos dados selecionados."
     else:
-        return "Nenhuma resposta encontrada."
+        return "Pergunta não reconhecida. Por favor, pergunte sobre quantidade, fornecedores ou valores totais."
+
+st.set_page_config(page_title="Agente de Consulta de Notas Fiscais", layout="wide")
+st.title("🧠 Agente de Consulta de Notas Fiscais")
+
+# Garantir pasta data
+os.makedirs(DATA_DIR, exist_ok=True)
+
+uploaded_file = st.file_uploader("📦 Faça upload do arquivo ZIP das notas fiscais (202401_NFs.zip)", type="zip")
+
+if uploaded_file:
+    with open(os.path.join(DATA_DIR, ZIP_FILENAME), "wb") as f:
+        f.write(uploaded_file.getbuffer())
+    st.success("Arquivo ZIP recebido com sucesso!")
+    unzip_if_needed()
+else:
+    if not (os.path.exists(os.path.join(DATA_DIR, CABECALHO_CSV)) and os.path.exists(os.path.join(DATA_DIR, ITENS_CSV))):
+        st.warning("Por favor, faça upload do arquivo ZIP para começar.")
+        st.stop()
+    else:
+        st.info("Usando arquivos CSV extraídos previamente.")
+
+try:
+    cabecalho_df, itens_df = load_data()
+except Exception as e:
+    st.error(f"Erro ao carregar os dados: {e}")
+    st.stop()
+
+aba = st.selectbox("Escolha a tabela para consultar:", ["Cabeçalho", "Itens"])
+
+df_selecionado = cabecalho_df if aba == "Cabeçalho" else itens_df
+
+st.subheader("❓ Faça sua pergunta sobre os dados:")
+pergunta = st.text_input("Digite aqui:")
 
 if pergunta:
     with st.spinner("Consultando..."):
-        try:
-            resposta_cab = st.session_state.cabecalho_engine.query(pergunta)
-            resposta_itens = st.session_state.itens_engine.query(pergunta)
-
-            st.subheader("📄 Resultado - Cabeçalho")
-            st.write(format_response(resposta_cab))
-
-            st.subheader("📦 Resultado - Itens")
-            st.write(format_response(resposta_itens))
-
-        except Exception as e:
-            st.error(f"Erro na consulta: {e}")
+        resposta = responder_pergunta(df_selecionado, pergunta)
+    st.success(resposta)

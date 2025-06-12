@@ -1,33 +1,35 @@
-# LLM Reasoning Strategies - IA2A Comunicação
+# Agente de Consulta de Notas Fiscais
 
 ## Descrição
 
-Este projeto implementa um agente inteligente para consulta interativa a dados de Notas Fiscais públicas em arquivos CSV. Usamos o **LlamaIndex** com o **PandasQueryEngine** para responder perguntas em linguagem natural diretamente a partir dos dados, sem necessidade de chave API ou conexão externa.
+Projeto que permite ao usuário consultar informações sobre notas fiscais de janeiro de 2024, usando arquivos CSV fornecidos pelo Tribunal de Contas da União. O agente responde perguntas em linguagem natural sobre os dados, sem necessidade de chave API ou conexão externa.
 
 ---
 
-## Funcionalidades
+## Como funciona
 
-- Descompacta automaticamente o arquivo ZIP contendo os CSVs, caso ainda não estejam extraídos.
-- Carrega os dados dos arquivos:
-  - `202401_NFs_Cabecalho.csv` (informações gerais das notas fiscais).
-  - `202401_NFs_Itens.csv` (itens detalhados de cada nota).
-- Permite perguntas interativas em português sobre os dados via terminal.
-- Respostas baseadas exclusivamente nos dados locais, offline e sem uso de API externa.
+- O usuário faz upload do arquivo `202401_NFs.zip` contendo os dados.
+- O agente descompacta os arquivos CSV e carrega os dados.
+- O usuário escolhe a tabela (Cabeçalho ou Itens) para consultar.
+- O usuário digita perguntas em linguagem natural.
+- O agente responde baseado nos dados carregados localmente.
 
 ---
 
-## Requisitos
+## Tecnologias usadas
 
 - Python 3.8+
-- Bibliotecas Python listadas no arquivo `requirements.txt`.
+- [Streamlit](https://streamlit.io/) para interface web.
+- [LlamaIndex](https://www.llamaindex.ai/) com PandasQueryEngine para consulta inteligente aos dados.
+- Pandas para manipulação dos CSVs.
 
 ---
 
-## Como rodar
+## Como rodar localmente
 
-1. Clone o repositório:
+1. Clone este repositório.
+
+2. Instale as dependências:
 
 ```bash
-git clone https://github.com/rosemelo/llm-reasoning-strategies-ia2a-comunicao.git
-cd llm-reasoning-strategies-ia2a-comunicao
+pip install -r requirements.txt

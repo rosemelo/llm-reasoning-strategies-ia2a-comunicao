@@ -1,7 +1,8 @@
 import os
 import zipfile
 import pandas as pd
-from llama_index.query_engine import PandasQueryEngine
+from llama_index.core.query_engine import PandasQueryEngine
+
 import logging
 from llama_index.core import PromptTemplate
 
