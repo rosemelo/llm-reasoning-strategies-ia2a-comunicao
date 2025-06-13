@@ -1,0 +1,22 @@
+# Ignorar arquivos de ambiente
+.env
+
+# Ignorar caches e arquivos compilados do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignorar pastas de ambiente virtual
+venv/
+.venv/
+
+# Ignorar arquivos específicos do macOS (se aplica)
+.DS_Store
+
+# Ignorar pasta de dados (se você não quiser versionar os CSVs e o ZIP)
+# data/
+
+# Ignorar arquivos de banco de dados (se você não estiver usando, pode manter ou remover)
+*.db
+*.sqlite3
