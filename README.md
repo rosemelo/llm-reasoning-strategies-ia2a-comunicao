@@ -26,10 +26,27 @@ Projeto que permite ao usuário consultar informações sobre notas fiscais de j
 ---
 
 ## Como rodar localmente
+ 1 Clone este repositório.
 
-1. Clone este repositório.
+    ```bash
+    git clone https://github.com/rosemelo/llm-reasoning-strategies-ia2a-comunicao.git    
+    ```
 
-2. Instale as dependências:
+2 Vá para a pasta do seu repositório.
 
-```bash
-pip install -r requirements.txt
+    ```bash
+    cd seu-repositorio
+    ```
+
+3 Instale as dependências.
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4 Inicie a aplicação Streamlit.
+
+    ```bash
+    streamlit run app.py
+    ```
+
