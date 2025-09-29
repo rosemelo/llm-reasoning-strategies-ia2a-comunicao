@@ -1,3 +1,43 @@
+# 🧠 Agentes Autônomos — Desafio Extra (EDA Genérico)
+## 📊 Dataset de Fraude em Cartão de Crédito (Kaggle)
+
+Este projeto foi ampliado para incluir um agente de Análise Exploratória de Dados (EDA) capaz de trabalhar com qualquer arquivo CSV.
+Como exemplo, utilizamos o dataset público Credit Card Fraud Detection, disponível no Kaggle:
+👉 [Kaggle - Credit Card Fraud Detection]
+
+O arquivo original (creditcard.csv) possui cerca de 150 MB e contém 284.807 transações, sendo que apenas 492 são fraudes (Class = 1).
+
+# ⚠️ Importante sobre este repositório
+
+Para não ultrapassar os limites do GitHub, aqui disponibilizamos apenas uma amostra reduzida:
+
+    ```bash  
+    data/creditcard_sample.csv
+    ```
+
+Essa amostra contém 5.000 transações escolhidas aleatoriamente e serve apenas para testes locais.
+
+Para rodar a aplicação com o dataset completo, siga as instruções abaixo.
+
+## 📥 Como obter o dataset completo
+
+Crie uma conta gratuita no Kaggle (se ainda não tiver).
+
+Acesse a página do dataset: [Credit Card Fraud Detection].
+
+Clique em Download e extraia o arquivo creditcard.csv.
+
+Coloque o arquivo extraído na pasta data/ do projeto, mantendo o nome:
+
+    ```bash  
+    data/creditcard.csv
+    ```
+
+# 🚀 Observação
+
+A aplicação é capaz de rodar tanto com a amostra (creditcard_sample.csv) quanto com o arquivo completo (creditcard.csv).
+Se o arquivo completo estiver presente, ele será priorizado.
+
 # Agente de Consulta de Notas Fiscais
 
 ## Descrição

@@ -1,6 +1,13 @@
+# Framework principal
 streamlit>=1.32.0
 pandas>=2.0.0
-llama-index>=0.10.36
+numpy
+matplotlib
+scikit-learn
 python-dotenv
-llama-index-llms-groq 
+
+# Para o agente LLM de Notas Fiscais
+llama-index>=0.10.36
+llama-index-llms-groq
 llama-index-experimental
+
